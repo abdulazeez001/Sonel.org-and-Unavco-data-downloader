@@ -1,77 +1,733 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SONEL,ORG</title>
-</head>
-<style>
-    input:focus{
-        border: 2px solid #0e176c !important;
-    }
-    a{
-        text-decoration: none;
-        color: white;
-    }
-</style>
-<body style="background-color: black;">
-    
-    <div style="width:350px;margin:80px auto;text-align: center;padding:20px 40px;font-family: 'Gill Sans', 'Gill Sans MT', sans-serif;background-color: #f4f4f4;">
-        <div style="margin-bottom:30px;font-size:30px;font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">SONEL.ORG</div>
-        <input id="location" type="text" placeholder="Enter you location code" style="width:200px;margin-bottom:10px;height:30px;font-weight: bolder;background-color: #fafafa;border-color:black;outline: none;padding:5px 10px;"/><br/>
-        <p style="margin: -5px 0; font-size: 10px; font-style: italic;">Input your location code</p><br />
-        <input id="year" type="number" placeholder="Enter the year" style="width:200px;margin-bottom:10px;height:30px;font-weight: bolder;background-color: #fafafa;border-color:black;outline: none;padding:5px 10px;"/><br/>
-        <p style="margin: -5px 0; font-size: 10px; font-style: italic;">Input year of interest</p><br />
-        <input id="startday" type="number" placeholder="Enter the Start day" style="width:200px;margin-bottom:10px;height:30px;font-weight: bolder;background-color: #fafafa;border-color:black;outline: none;padding:5px 10px;"/><br/>
-        <p style="margin: -5px 0; font-size: 10px; font-style: italic;">Enter the expected start day of the year (between 1 - 366)</p><br />
-        <input id="endday" type="number" placeholder="Enter the Last day" style="width:200px;margin-bottom:10px;height:30px;font-weight: bolder;background-color: #fafafa;border-color:black;outline: none;padding:5px 10px;"/><br/>
-        <p style="margin: -5px 0; font-size: 10px; font-style: italic;">Enter the expected last day of the year (between 1 - 366)</p><br />
-        <button onclick="yo()"style="width:220px;height:30px;border:none;font-weight:700;background-color:#0e176c;color:white;margin: 10px 0;box-shadow:2px 2px 5px #bcbcbc;cursor: pointer;">Download</button><br/>
-        <a href='./unavco.html'><button style="width:220px;height:30px;border:none;font-weight:700;background-color:#0e6c2a;color:white;margin: 10px 0;box-shadow:2px 2px 5px #bcbcbc;cursor: pointer;" >Check in Unavco</button></a><br/>
-        <a href='./nasa.html'><button style="width:220px;height:30px;border:none;font-weight:700;background-color:#831313;color:white;margin: 10px 0;box-shadow:2px 2px 5px #bcbcbc;cursor: pointer;" >Check in Cddis Nasa</button></a><br/>
-        <a style="margin: -5px 0; font-size: 10px; font-style: italic;color:red;" href="mailto:oluwatobiabdulazeez@gmail.com">Made with love by Shittu Abdulazeez </a>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SONEL Data Downloader</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <script src="config.js"></script>
+  </head>
+  <body class="data-source-sonel">
+    <div id="alert" class="alert"></div>
+    <div id="loading" class="loading" style="display: none">
+      <div class="loading-spinner"></div>
+      <div>Loading...</div>
     </div>
-</body>
-<script>
-let locat = document.getElementById("location")
-let year = document.getElementById("year")
-let startday = document.getElementById("startday")
-let endday = document.getElementById("endday")
-    
-function yo(){
-    if(locat.value == '' || year.value == '' || startday.value == '' || endday.value == ''){
-        alert('PLEASE FILL ALL THE INPUT FIELD')
-        return
-    }
-    let newLoc = locat.value.toLowerCase()
-    var urls =[]
-    Array(newLoc).forEach((num)=>{
-    [year.value].forEach((year)=>{
-        for (var i = parseInt(startday.value); i<=parseInt(endday.value); i++){
-            let j = i<10?`00${i}`:i>=10 && i<100?`0${i}`:i
-            let end = year.slice(2)
-            urls.push(`https://www.sonel.org/squelettes/outils/getRinex.php?acro=${num}&doy=${j}&year=${year}&nomFic=${num}${j}0.${end}d.Z`)
+    <div class="main-container">
+      <!-- Designer Credits -->
+      <div class="designer-credits">
+        <div class="credits-content">
+          <span class="credits-text">
+            Designed by
+            <a href="mailto:prof.akala@unilag.edu.ng" class="designer-link"
+              >Andrew Akala</a
+            >
+            &
+            <a href="mailto:oluwatobiabdulazeez@gmail.com" class="designer-link"
+              >Shittu Abdulazeez</a
+            >
+          </span>
+        </div>
+      </div>
+
+      <header class="header">
+        <div class="data-source-badge">
+          <i class="fas fa-globe-americas"></i>
+          SONEL Data Source
+        </div>
+        <h1>GNSS Data Downloader</h1>
+        <p>
+          A professional tool for downloading GNSS data from SONEL, designed for
+          researchers and scientists.
+        </p>
+
+        <div class="data-source-selector">
+          <label for="dataSource">Data Source:</label>
+          <select
+            id="dataSource"
+            class="form-control"
+            onchange="switchDataSource(this.value)"
+          >
+            <option value="index.html" selected>SONEL</option>
+            <option value="nasa.html">NASA CDDIS</option>
+            <option value="unavco.html">UNAVCO</option>
+          </select>
+        </div>
+      </header>
+
+      <div class="content-grid">
+        <section class="form-section">
+          <!-- <p class="help-text" style="margin-bottom: 1.5rem; color: #3b82f6">
+            <i class="fas fa-info-circle"></i> Note: You need to
+            <a href="https://www.sonel.org/" target="_blank">visit SONEL</a>
+            first for authentication.
+          </p> -->
+
+          <div class="form-group">
+            <label for="locationCode">Station Code:</label>
+            <div class="location-search-container">
+              <input
+                type="text"
+                id="locationCode"
+                class="form-control location-search"
+                placeholder="Search or type station code (e.g., BRST)"
+                autocomplete="off"
+                oninput="filterStations()"
+                onfocus="showStationList()"
+                onblur="hideStationList()"
+              />
+              <div
+                id="stationDropdown"
+                class="station-dropdown"
+                style="display: none"
+              >
+                <!-- Station list will be populated here -->
+              </div>
+            </div>
+            <p class="help-text">
+              Search from common stations or type any 4-character station code
+            </p>
+          </div>
+
+          <!-- Input Method Toggle -->
+          <div class="form-group">
+            <label>Input Method:</label>
+            <div class="input-method-toggle">
+              <button
+                type="button"
+                class="toggle-btn active"
+                onclick="switchInputMethod('date')"
+                id="dateToggle"
+              >
+                <i class="fas fa-calendar"></i> Date Picker
+              </button>
+              <button
+                type="button"
+                class="toggle-btn"
+                onclick="switchInputMethod('manual')"
+                id="manualToggle"
+              >
+                <i class="fas fa-keyboard"></i> Manual Entry
+              </button>
+            </div>
+          </div>
+
+          <!-- Date Picker Mode -->
+          <div id="dateMode">
+            <div class="form-group">
+              <label for="startDate">Start Date:</label>
+              <input
+                type="date"
+                id="startDate"
+                class="form-control"
+                value="2024-01-01"
+              />
+              <p class="help-text">Select the start date for data download</p>
+            </div>
+
+            <div class="form-group">
+              <label for="endDate">End Date:</label>
+              <input
+                type="date"
+                id="endDate"
+                class="form-control"
+                value="2024-12-31"
+              />
+              <p class="help-text">Select the end date for data download</p>
+            </div>
+          </div>
+
+          <!-- Manual Entry Mode -->
+          <div id="manualMode" style="display: none">
+            <div class="form-group">
+              <label for="year">Year:</label>
+              <input
+                type="number"
+                id="year"
+                class="form-control"
+                placeholder="Enter Year (e.g., 2024)"
+                min="1990"
+                max="2030"
+                value="2024"
+              />
+              <p class="help-text">Enter the year in YYYY format</p>
+            </div>
+
+            <div class="form-group">
+              <label for="startDay">Start Day of Year:</label>
+              <input
+                type="number"
+                id="startDay"
+                class="form-control"
+                placeholder="Enter Start Day (1-366)"
+                min="1"
+                max="366"
+                value="1"
+              />
+              <p class="help-text">Enter the start day of the year (1-366)</p>
+            </div>
+
+            <div class="form-group">
+              <label for="endDay">End Day of Year:</label>
+              <input
+                type="number"
+                id="endDay"
+                class="form-control"
+                placeholder="Enter End Day (1-366)"
+                min="1"
+                max="366"
+                value="365"
+              />
+              <p class="help-text">Enter the end day of the year (1-366)</p>
+            </div>
+          </div>
+
+          <div class="download-section">
+            <button
+              onclick="downloadData()"
+              class="btn btn-primary"
+              id="downloadBtn"
+            >
+              <i class="fas fa-download"></i>
+              Download Data
+            </button>
+
+            <!-- Batch Download Progress -->
+            <div
+              id="batchProgress"
+              class="batch-progress"
+              style="display: none"
+            >
+              <div class="progress-header">
+                <h4>Batch Download Progress</h4>
+                <button
+                  onclick="cancelDownload()"
+                  class="btn btn-secondary btn-small"
+                >
+                  <i class="fas fa-times"></i> Cancel
+                </button>
+              </div>
+              <div class="progress-stats">
+                <span id="progressText">Preparing download...</span>
+                <span id="progressTime"></span>
+              </div>
+              <div class="progress-bar">
+                <div id="progressFill" class="progress-fill"></div>
+              </div>
+              <div id="fileList" class="file-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="popup-notice">
+          <div class="popup-notice-header">
+            <h3>Browser Configuration</h3>
+            <p>
+              To ensure successful downloads, please configure your browser's
+              popup settings as follows:
+            </p>
+          </div>
+          <div class="browser-instructions">
+            <div class="browser-card chrome">
+              <h4><i class="fab fa-chrome browser-icon"></i>Google Chrome</h4>
+              <p>
+                🔒 Click the <strong>lock icon</strong> → Site Settings → Enable
+                <strong>Pop-ups</strong>
+              </p>
+            </div>
+            <div class="browser-card firefox">
+              <h4>
+                <i class="fab fa-firefox browser-icon"></i>Mozilla Firefox
+              </h4>
+              <p>
+                🛡️ Click the <strong>shield icon</strong> → Permissions → Allow
+                <strong>Pop-ups</strong>
+              </p>
+            </div>
+            <div class="browser-card safari">
+              <h4><i class="fab fa-safari browser-icon"></i>Safari</h4>
+              <p>
+                ⚙️ Safari → Preferences → <strong>Websites</strong> → Pop-up
+                Windows → <strong>Allow</strong>
+              </p>
+            </div>
+            <div class="browser-card edge">
+              <h4><i class="fab fa-edge browser-icon"></i>Microsoft Edge</h4>
+              <p>
+                🔒 Click the <strong>lock icon</strong> → Permissions → Enable
+                <strong>Pop-ups</strong>
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      // Initialize the application with config loaded from config.js
+      function initializeApp() {
+        // Apply SONEL theme
+        if (
+          globalConfig &&
+          globalConfig.dataSources &&
+          globalConfig.dataSources.sonel
+        ) {
+          const theme = globalConfig.dataSources.sonel.theme;
+          document.documentElement.style.setProperty(
+            '--primary-color',
+            theme.primary
+          );
+          document.documentElement.style.setProperty(
+            '--secondary-color',
+            theme.secondary
+          );
+          document.documentElement.style.setProperty(
+            '--accent-color',
+            theme.accent
+          );
         }
-    })
-    }
-)
-   
-    var interval = setInterval(download,0,urls)
-    function download(urls){
-        var url = urls.pop();
 
-        var a = document.createElement("a");
-        a.setAttribute('href',url);
-        a.setAttribute('dowload','');
-        a.setAttribute('target','_blank');
-        a.click();
+        console.log(
+          `Loaded ${stationList.length} GNSS stations from config.js`
+        );
+      }
 
-        if(urls.length == 0){
-            clearInterval(interval)
+      // Call initialization when page loads
+      document.addEventListener('DOMContentLoaded', initializeApp);
+
+      // Check for popup blocking
+      function checkPopupBlocking() {
+        const popup = window.open('about:blank', '_blank');
+        if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+          showAlert(
+            'Please allow popups for this website to download files properly.',
+            'error'
+          );
+          return false;
         }
-    }
-    }
+        popup.close();
+        return true;
+      }
 
-</script>
+      // Show alert message
+      function showAlert(message, type) {
+        const alert = document.getElementById('alert');
+        alert.textContent = message;
+        alert.className = `alert alert-${type}`;
+        alert.style.display = 'block';
+        setTimeout(() => {
+          alert.style.display = 'none';
+        }, 5000);
+      }
+
+      let hideTimeout;
+
+      // Filter stations based on search input
+      function filterStations() {
+        const input = document.getElementById('locationCode');
+        const searchTerm = input.value.toLowerCase();
+        const dropdown = document.getElementById('stationDropdown');
+
+        // Clear any existing timeout
+        if (hideTimeout) {
+          clearTimeout(hideTimeout);
+        }
+
+        if (searchTerm.length === 0) {
+          dropdown.innerHTML = '';
+          dropdown.style.display = 'none';
+          return;
+        }
+
+        // Filter stations that match the search term
+        const filteredStations = stationList.filter(
+          (station) =>
+            station.code.toLowerCase().includes(searchTerm) ||
+            station.name.toLowerCase().includes(searchTerm) ||
+            station.country.toLowerCase().includes(searchTerm)
+        );
+
+        // Display filtered results
+        if (filteredStations.length > 0) {
+          dropdown.innerHTML = filteredStations
+            .slice(0, 10)
+            .map(
+              (station) =>
+                `<div class="station-item" onmousedown="selectStation('${station.code}')">
+              <span class="station-code">${station.code}</span>
+              <span class="station-details">${station.name}, ${station.country}</span>
+            </div>`
+            )
+            .join('');
+          dropdown.style.display = 'block';
+        } else {
+          dropdown.innerHTML =
+            '<div class="station-item no-results">No stations found - you can still type any code</div>';
+          dropdown.style.display = 'block';
+        }
+      }
+
+      // Show station list on focus
+      function showStationList() {
+        if (hideTimeout) {
+          clearTimeout(hideTimeout);
+        }
+        filterStations();
+      }
+
+      // Hide station list on blur (with delay)
+      function hideStationList() {
+        hideTimeout = setTimeout(() => {
+          document.getElementById('stationDropdown').style.display = 'none';
+        }, 150);
+      }
+
+      // Select a station from the dropdown
+      function selectStation(stationCode) {
+        document.getElementById('locationCode').value =
+          stationCode.toUpperCase();
+        document.getElementById('stationDropdown').style.display = 'none';
+      }
+
+      // Input method toggle
+      function switchInputMethod(method) {
+        const dateMode = document.getElementById('dateMode');
+        const manualMode = document.getElementById('manualMode');
+        const dateToggle = document.getElementById('dateToggle');
+        const manualToggle = document.getElementById('manualToggle');
+
+        if (method === 'date') {
+          dateMode.style.display = 'block';
+          manualMode.style.display = 'none';
+          dateToggle.classList.add('active');
+          manualToggle.classList.remove('active');
+        } else {
+          dateMode.style.display = 'none';
+          manualMode.style.display = 'block';
+          dateToggle.classList.remove('active');
+          manualToggle.classList.add('active');
+        }
+      }
+
+      // Convert date to day of year
+      function dateToDay(dateString) {
+        const date = new Date(dateString);
+        const start = new Date(date.getFullYear(), 0, 0);
+        const diff = date - start;
+        return Math.floor(diff / (1000 * 60 * 60 * 24));
+      }
+
+      // Validate input
+      function validateInput() {
+        const location = document.getElementById('locationCode').value.trim();
+
+        if (!location) {
+          showAlert('Please enter a location code', 'error');
+          return false;
+        }
+
+        // Check which mode is active
+        const dateMode =
+          document.getElementById('dateMode').style.display !== 'none';
+
+        if (dateMode) {
+          // Date picker mode validation
+          const startDate = document.getElementById('startDate').value;
+          const endDate = document.getElementById('endDate').value;
+
+          if (!startDate || !endDate) {
+            showAlert('Please fill in all date fields', 'error');
+            return false;
+          }
+
+          const start = new Date(startDate);
+          const end = new Date(endDate);
+
+          if (start > end) {
+            showAlert(
+              'Start date must be before or equal to end date',
+              'error'
+            );
+            return false;
+          }
+
+          // Allow cross-year date ranges
+        } else {
+          // Manual mode validation
+          const year = document.getElementById('year').value.trim();
+          const startDay = document.getElementById('startDay').value.trim();
+          const endDay = document.getElementById('endDay').value.trim();
+
+          if (!year || !startDay || !endDay) {
+            showAlert('Please fill in all fields', 'error');
+            return false;
+          }
+
+          const start = parseInt(startDay);
+          const end = parseInt(endDay);
+
+          if (start < 1 || start > 366 || end < 1 || end > 366) {
+            showAlert('Day values must be between 1 and 366', 'error');
+            return false;
+          }
+
+          if (start > end) {
+            showAlert(
+              'Start day must be less than or equal to end day',
+              'error'
+            );
+            return false;
+          }
+        }
+
+        return true;
+      }
+
+      // Global variables for batch download
+      let downloadInterval = null;
+      let downloadCancelled = false;
+      let startTime = null;
+
+      // Download data with enhanced batch features
+      function downloadData() {
+        if (!checkPopupBlocking()) {
+          return;
+        }
+
+        if (!validateInput()) {
+          return;
+        }
+
+        const location = document
+          .getElementById('locationCode')
+          .value.toLowerCase();
+
+        let year, startday, endday;
+
+        // Check which mode is active
+        const dateMode =
+          document.getElementById('dateMode').style.display !== 'none';
+
+        let files = [];
+
+        if (dateMode) {
+          // Date picker mode - handle cross-year ranges
+          const startDate = new Date(
+            document.getElementById('startDate').value
+          );
+          const endDate = new Date(document.getElementById('endDate').value);
+
+          // Generate files for date range (can span multiple years)
+          for (
+            let currentDate = new Date(startDate);
+            currentDate <= endDate;
+            currentDate.setDate(currentDate.getDate() + 1)
+          ) {
+            const currentYear = currentDate.getFullYear().toString();
+            const dayOfYear = dateToDay(
+              currentDate.toISOString().split('T')[0]
+            );
+            const day = dayOfYear.toString().padStart(3, '0');
+            const yearShort = currentYear.slice(2);
+            const filename = `${location}${day}0.${yearShort}d.Z`;
+            const url = `https://www.sonel.org/squelettes/outils/getRinex.php?acro=${location}&doy=${day}&year=${currentYear}&nomFic=${filename}`;
+
+            files.push({
+              day: dayOfYear,
+              filename,
+              url,
+              status: 'pending',
+              date: new Date(currentDate).toISOString().split('T')[0],
+            });
+          }
+        } else {
+          // Manual mode - original logic (same year)
+          year = document.getElementById('year').value;
+          startday = parseInt(document.getElementById('startDay').value);
+          endday = parseInt(document.getElementById('endDay').value);
+
+          for (let i = startday; i <= endday; i++) {
+            const day = i.toString().padStart(3, '0');
+            const yearShort = year.slice(2);
+            const filename = `${location}${day}0.${yearShort}d.Z`;
+            const url = `https://www.sonel.org/squelettes/outils/getRinex.php?acro=${location}&doy=${day}&year=${year}&nomFic=${filename}`;
+
+            files.push({ day: i, filename, url, status: 'pending' });
+          }
+        }
+
+        const totalFiles = files.length;
+
+        // Show batch progress interface
+        document.getElementById('downloadBtn').style.display = 'none';
+        document.getElementById('batchProgress').style.display = 'block';
+
+        // Prepare file list
+        const fileList = document.getElementById('fileList');
+        fileList.innerHTML = '';
+
+        // Add files to display list
+        files.forEach((file, index) => {
+          const fileItem = document.createElement('div');
+          fileItem.className = 'file-item';
+          fileItem.id = `file-${file.day}`;
+          fileItem.innerHTML = `
+            <span class="file-name">${file.filename}</span>
+            <span class="file-status pending">
+              <i class="fas fa-clock"></i> Pending
+            </span>
+          `;
+          fileList.appendChild(fileItem);
+        });
+
+        // Start batch download
+        startBatchDownload(files);
+      }
+
+      // Start batch download process
+      function startBatchDownload(files) {
+        downloadCancelled = false;
+        startTime = Date.now();
+        let currentIndex = 0;
+
+        function updateProgress() {
+          const progress = (currentIndex / files.length) * 100;
+          document.getElementById('progressFill').style.width = progress + '%';
+
+          if (currentIndex === 0) {
+            document.getElementById('progressText').textContent =
+              'Starting download...';
+          } else {
+            document.getElementById(
+              'progressText'
+            ).textContent = `Downloading ${currentIndex} of ${files.length} files`;
+          }
+
+          // Update estimated time
+          if (currentIndex > 0) {
+            const elapsed = Date.now() - startTime;
+            const avgTimePerFile = elapsed / currentIndex;
+            const remainingFiles = files.length - currentIndex;
+            const estimatedRemaining = Math.round(
+              (avgTimePerFile * remainingFiles) / 1000
+            );
+
+            document.getElementById('progressTime').textContent =
+              estimatedRemaining > 0
+                ? `~${estimatedRemaining}s remaining`
+                : 'Almost done...';
+          }
+        }
+
+        downloadInterval = setInterval(() => {
+          if (downloadCancelled) {
+            clearInterval(downloadInterval);
+            resetDownloadInterface();
+            return;
+          }
+
+          if (currentIndex >= files.length) {
+            clearInterval(downloadInterval);
+            document.getElementById('progressText').textContent =
+              'Download completed!';
+            document.getElementById('progressTime').textContent = '';
+            document.getElementById('progressFill').style.width = '100%';
+
+            setTimeout(() => {
+              resetDownloadInterface();
+              showAlert(
+                `Successfully downloaded ${files.length} files!`,
+                'success'
+              );
+            }, 2000);
+            return;
+          }
+
+          const file = files[currentIndex];
+
+          // Update file status to downloading
+          const fileItem = document.getElementById(`file-${file.day}`);
+          const statusSpan = fileItem.querySelector('.file-status');
+          statusSpan.className = 'file-status downloading';
+          statusSpan.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Downloading';
+
+          // Trigger background download with status update
+          downloadFileInBackground(file.url, file.filename, file.day);
+
+          currentIndex++;
+          updateProgress();
+        }, 1500); // 1.5 second delay between downloads
+      }
+
+      // Cancel download
+      function cancelDownload() {
+        downloadCancelled = true;
+        if (downloadInterval) {
+          clearInterval(downloadInterval);
+        }
+        showAlert('Download cancelled', 'error');
+        resetDownloadInterface();
+      }
+
+      // Reset download interface
+      function resetDownloadInterface() {
+        document.getElementById('batchProgress').style.display = 'none';
+        document.getElementById('downloadBtn').style.display = 'inline-flex';
+        document.getElementById('progressFill').style.width = '0%';
+      }
+
+      // Download file in background using direct link approach
+      function downloadFileInBackground(url, filename, dayId) {
+        const fileItem = document.getElementById(`file-${dayId}`);
+        const statusSpan = fileItem.querySelector('.file-status');
+
+        try {
+          // Create hidden download link
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = filename;
+          link.style.display = 'none';
+
+          // Add to document temporarily
+          document.body.appendChild(link);
+
+          // Trigger download
+          link.click();
+
+          // Remove link immediately
+          document.body.removeChild(link);
+
+          // Update status to success
+          setTimeout(() => {
+            statusSpan.className = 'file-status completed';
+            statusSpan.innerHTML = '<i class="fas fa-check"></i> Downloaded';
+          }, 500);
+        } catch (error) {
+          console.error('Download failed:', error);
+
+          // Update status to error
+          statusSpan.className = 'file-status error';
+          statusSpan.innerHTML =
+            '<i class="fas fa-exclamation-triangle"></i> Failed';
+        }
+      }
+
+      // Switch provider function
+      function switchDataSource(dataSource) {
+        if (dataSource !== 'index.html') {
+          window.location.href = dataSource;
+        }
+      }
+    </script>
+  </body>
 </html>
